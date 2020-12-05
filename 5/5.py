@@ -8,11 +8,15 @@ def parse_input():
 def first(tickets):
     return tickets[-1]
 
-
+def second(tickets):
+    for i in range(1, len(tickets) - 1):
+        if tickets[i] - 1 > tickets[i-1]:
+            return tickets[i] - 1
 def main():
     tickets = parse_input()
     tickets.sort()
     print(first(tickets))
+    print(second(tickets))
 
 if __name__ == '__main__':
     main()
