@@ -52,9 +52,18 @@ def first(graph):
 
     return len(parents)
 
+def second(root, graph):
+    direct = sum([count for count, _ in graph[root]])
+    indirect = 0
+    for count, node in graph[root]:
+        indirect += count * second(node, graph)
+
+    return direct + indirect
+
 def main():
     graph = parse_input()
     print(first(graph))
+    print(second('shiny gold', graph))
 
 
 if __name__ == '__main__':
