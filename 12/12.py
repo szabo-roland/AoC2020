@@ -1,12 +1,9 @@
-class Direction(int):
+from IntMathMixin import IntMathMixin
+
+
+class Direction(IntMathMixin, int):
     def __new__(cls, value):
         return int.__new__(cls, value % 360)
-
-    def __add__(self, value):
-        return type(self)(int.__add__(self, value))
-
-    def __sub__(self, value):
-        return type(self)(int.__sub__(self, value))
 
 
 class NavigationStep(object):
