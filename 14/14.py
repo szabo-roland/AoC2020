@@ -1,3 +1,6 @@
+from itertools import product
+
+
 def parse_input():
     with open('input', 'r') as f:
         return [parse_op(line.strip()) for line in f.readlines()]
@@ -38,15 +41,49 @@ class Machine(object):
 
         return int(result, 2)
 
+    def run(self, program):
+        for op, arg in program:
+            self.execute(op, arg)
+
+
+class MachineV2(Machine):
+    def write(self, op, arg):
+        addrs = self.get_addresses(op)
+        for addr in addrs:
+            super().write(addr, arg)
+
+    def get_addresses(self, addr):
+        mod_addr = ''
+        for m, a in zip(self.mask, self.to_bitstring(addr)):
+            if m == 'X':
+                mod_addr += '0'
+            else:
+                mod_addr += a
+        mod_addr = int(mod_addr, 2)
+
+        fmt_mask = self.mask.replace('X', '{}')
+        addrs = []
+        for fmt_arg in product('01', repeat=self.mask.count('X')):
+            mask = int(fmt_mask.format(*fmt_arg), 2)
+            addrs.append(mask | mod_addr)
+
+        return addrs
+
+    def do_mask(self, val):
+        return val
 
 def first(ops):
     m = Machine()
-    for op, arg in ops:
-        m.execute(op, arg)
-
+    m.run(ops)
     return sum(m.mem.values())
 
+
+def second(ops):
+    m = MachineV2()
+    m.run(ops)
+    return sum(m.mem.values())
 
 if __name__ == '__main__':
     ops = parse_input()
     print(first(ops))
+    print(second(ops))
