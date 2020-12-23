@@ -3,41 +3,33 @@
 #include <stdio.h>
 
 
+#define LEN (1000000)
+#define LAST(removed) (removed->next->next)
+
 typedef struct Node {
     uint64_t value;
     struct Node* next;
-    struct Node* prev;
 } Node;
 
 
 static Node * list;
 
-#define LEN (1000000)
-#define LAST(removed) removed->next->next
-
-void do_linking(Node * list, uint64_t index)
-{
-    list[index].prev = &list[index-1];
-    list[index].next = &list[index+1];
-}
-
-Node * createList(uint64_t * data)
+Node * create_list(uint64_t * data)
 {
 
     Node * result = calloc(LEN, sizeof(Node));
     for(uint64_t i = 0; i < 9; i++)
     {
         result[i].value = data[i];
-        do_linking(result, i);
+        result[i].next = &result[i+1];
     }
 
     for(uint64_t i = 9; i <= LEN; i++)
     {
         result[i].value = i + 1;
-        do_linking(result, i);
+        result[i].next = &result[i+1];
     }
 
-    result[0].prev = &result[LEN - 1];
     result[LEN-1].next = &result[0];
 
     return result;
@@ -48,7 +40,6 @@ Node * do_remove(Node * current)
     Node * first_removed = current->next;
     Node * next_in = LAST(first_removed)->next;
     current->next = next_in;
-    next_in->prev = current;
     return first_removed;
 }
 
@@ -114,9 +105,7 @@ Node * get_destination(uint64_t value)
 
 void insert_removed(Node * destination, Node * removed)
 {
-    removed->prev = destination;
     LAST(removed)->next = destination->next;
-    destination->next->prev = LAST(removed);
     destination->next = removed;
 }
 
@@ -133,7 +122,7 @@ Node * do_round(Node * current)
 int main(void)
 {
     uint64_t data[] = {3, 1, 5, 6, 7, 9, 8, 2, 4};
-    list = createList(data);
+    list = create_list(data);
     Node * one = &list[1];
     Node * current = list;
     for(uint32_t i = 0; i < 10000000; i++)
@@ -143,4 +132,5 @@ int main(void)
     uint64_t first = one->next->value;
     uint64_t second = one->next->next->value;
     printf("%ld * %ld = %ld\n", first, second, first * second);
+    free(list);
 }
